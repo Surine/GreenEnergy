@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <group >
+        <item
+            android:id="@+id/nav_money"
+            android:title="我的钱包"/>
+        <item
+            android:id="@+id/nav_record"
+            android:title="投放记录"/>
+        <item
+            android:id="@+id/nav_market"
+            android:title="积分商城"/>
+        <item
+            android:id="@+id/nav_recycle"
+
+            android:title="一键回收"/>
+    </group>
+
+    <item android:title="关于">
+        <menu>
+            <item
+                android:id="@+id/nav_share"
+                android:title="分享应用"/>
+            <item
+                android:id="@+id/nav_setting"
+                android:title="设置"/>
+            <item
+                android:id="@+id/nav_develop"
+                android:title="开发者模式"/>
+        </menu>
+    </item>
+
+</menu>

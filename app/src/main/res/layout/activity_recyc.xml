@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.greenenergy.greenenergy.UI.RecycActivity">
+    <android.support.v7.widget.Toolbar
+        android:layout_width="match_parent"
+        android:layout_height="80dp"
+        android:id="@+id/toolbar"
+        android:paddingTop="15dp"
+        android:fitsSystemWindows="true"
+        android:background="?attr/colorPrimary"
+        android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
+        app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
+        />
+
+    <EditText
+        android:id="@+id/editText6"
+        android:layout_width="match_parent"
+        android:layout_height="45dp"
+        android:layout_below="@+id/toolbar"
+        android:background="@drawable/edit"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="64dp"
+        android:paddingStart="20dp"
+        android:layout_marginStart="30dp"
+        android:layout_marginEnd="30dp"
+        android:ems="10"
+        android:hint="请填写您的位置"
+        android:inputType="textPersonName"/>
+
+    <Button
+        android:id="@+id/button8"
+        android:layout_width="70dp"
+        android:layout_height="38dp"
+        android:layout_marginTop="10dp"
+        android:textColor="#fff"
+        android:layout_marginEnd="14dp"
+        android:background="@drawable/button_shape"
+        android:text="公司"
+        android:layout_below="@+id/editText6"
+        android:layout_toStartOf="@+id/button9"/>
+
+    <Button
+        android:id="@+id/button9"
+        android:layout_width="70dp"
+        android:layout_height="38dp"
+        android:textColor="#fff"
+        android:background="@drawable/button_shape"
+        android:text="家"
+        android:layout_alignTop="@+id/button8"
+        android:layout_alignEnd="@+id/editText6"/>
+
+    <Button
+        android:id="@+id/button10"
+        android:textColor="#fff"
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        android:background="@drawable/button_shape"
+        android:text="一键回收"
+        android:layout_below="@+id/button8"
+        android:layout_centerInParent="true"
+        android:layout_marginTop="38dp"/>
+
+    <ImageView
+        android:id="@+id/imageView3"
+        android:layout_width="match_parent"
+        android:layout_height="100dp"
+        app:srcCompat="@drawable/back"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentStart="true"/>
+</RelativeLayout>

@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.greenenergy.greenenergy.UI.LoginActivity">
+
+    <TextView
+        android:id="@+id/textView4"
+        android:layout_width="wrap_content"
+        android:layout_height="50dp"
+        android:gravity="center"
+        android:layout_alignParentTop="true"
+        android:layout_alignStart="@+id/phone"
+        android:layout_marginTop="73dp"
+        android:text="注册OR"
+        android:textSize="30sp"
+        android:textStyle="bold"/>
+
+    <TextView
+        android:id="@+id/textView5"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignStart="@+id/textView4"
+        android:layout_below="@+id/textView4"
+        android:layout_marginTop="12dp"
+        android:text="欢迎使用GreenEnergy"/>
+
+    <EditText
+        android:id="@+id/phone"
+        android:layout_width="match_parent"
+        android:layout_height="43dp"
+        android:layout_below="@+id/textView5"
+        android:layout_marginEnd="12dp"
+        android:layout_marginStart="12dp"
+        android:layout_marginTop="22dp"
+        android:background="@drawable/edit"
+        android:ems="10"
+        android:hint="请输入手机号码"
+        android:inputType="phone"
+        android:maxLength="11"
+        android:paddingStart="20dp"
+        android:textSize="14sp"
+        />
+
+    <EditText
+        android:id="@+id/pswd"
+        android:layout_width="match_parent"
+        android:layout_height="43dp"
+        android:layout_below="@+id/phone"
+        android:layout_marginEnd="12dp"
+        android:layout_marginStart="12dp"
+        android:layout_marginTop="22dp"
+        android:background="@drawable/edit"
+        android:ems="10"
+        android:hint="请输入密码"
+        android:inputType="textPassword"
+        android:maxLength="11"
+        android:paddingStart="20dp"
+        android:textSize="14sp"
+        />
+    <EditText
+        android:id="@+id/code"
+        android:layout_width="match_parent"
+        android:layout_height="43dp"
+        android:layout_below="@+id/pswd"
+        android:layout_marginEnd="12dp"
+        android:layout_marginStart="12dp"
+        android:layout_marginTop="15dp"
+        android:layout_toStartOf="@+id/button2"
+        android:background="@drawable/edit"
+        android:ems="10"
+        android:hint="请输入验证码"
+        android:inputType="textPersonName"
+        android:maxLength="11"
+        android:paddingStart="20dp"
+        android:textSize="14sp"/>
+
+    <Button
+        android:id="@+id/button2"
+        style="@style/Widget.AppCompat.Button.Borderless.Colored"
+        android:layout_width="wrap_content"
+        android:layout_height="43dp"
+        android:text="获取验证码"
+        android:layout_above="@+id/login"
+        android:layout_alignEnd="@+id/login"/>
+
+    <Button
+        android:id="@+id/login"
+        android:layout_width="wrap_content"
+        android:layout_height="40dp"
+        android:layout_marginStart="12dp"
+        android:layout_marginEnd="12dp"
+        android:text="注册"
+        android:layout_marginTop="20dp"
+        android:background="@drawable/button_no_cor"
+        android:layout_below="@+id/code"
+        android:textColor="#fff"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentEnd="true"/>
+
+    <TextView
+        android:id="@+id/textView6"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/login"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="18dp"
+        android:text="注册即代表同意《使用协议》"/>
+
+    <Button
+        android:id="@+id/button11"
+        style="@style/Widget.AppCompat.Button.Borderless.Colored"
+        android:layout_width="wrap_content"
+        android:layout_height="50dp"
+        android:textSize="15sp"
+        android:layout_above="@+id/textView5"
+        android:layout_toEndOf="@+id/textView4"
+        android:text="登录"/>
+</RelativeLayout>

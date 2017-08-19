@@ -1,0 +1,10 @@
+<resources>
+    <string name="app_name">GreenEnergy</string>
+    <string name="error">无法使用基站或者GPS定位，请检查是否开启GPS或是否处于飞行模式</string>
+
+    <!--zxing-->
+    <string name="str_scan_title">扫一扫</string>
+    <string name="str_open_light">开启闪光灯</string>
+    <string name="str_close_light">关闭闪光灯</string>
+    <string name="str_scan_hint">取景框对准二维码, 即可自动扫描</string>
+</resources>
