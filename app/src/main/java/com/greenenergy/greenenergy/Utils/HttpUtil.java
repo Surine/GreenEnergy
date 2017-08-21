@@ -19,4 +19,11 @@ public class HttpUtil {
         final Request request = new Request.Builder().post(body).url(url).build();
         return okHttpClient.newCall(request);
     }
+
+    public static Call get(String url){
+        OkHttpClient.Builder builder = new OkHttpClient.Builder().connectTimeout(10, TimeUnit.SECONDS);
+        OkHttpClient okHttpClient = builder.cookieJar(new JavaNetCookieJar()).build();
+        final Request request = new Request.Builder().url(url).build();
+        return okHttpClient.newCall(request);
+    }
 }

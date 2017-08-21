@@ -23,4 +23,6 @@ public class NetWorkData {
     public static String register_api = IP_port+"/register";
     //登录接口
     public static String login_api = IP_port+"/login";
+    //更新接口
+    public static String update_api = "http://surine.cn/GreenEnergyFiles/version_manager.php";
 }

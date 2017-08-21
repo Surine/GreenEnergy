@@ -155,82 +155,83 @@ public class RegisterActivity extends AppCompatActivity {
         if(pswd_String.equals("")||phoneNUmber.equals("")){
             Toast.makeText(RegisterActivity.this, "你怎么可以这么调皮,请填完整！", Toast.LENGTH_SHORT).show();
         }else{
-            //进行网络请求
-            StartHttp();
+            //取得category
+            getCode();
         }
     }
-
-    private void StartHttp() {
-        //TODO：用户注册方式
-
-        //这是服务器标准表单，具体的内容可以参照FormData这个类里的数据
-        formBody = new FormBody.Builder()
-                .add(FormData.phone, phoneNUmber)
-                .add(FormData.pswd, pswd.getText().toString())
-                .add(FormData.name, phoneNUmber)
-                .add(FormData.category, getCode())
-                .build();
-    }
-
     //这里可以获取身份（直接返回0，或1）
-    private String getCode() {
+    private void getCode() {
         AlertDialog.Builder builder = new AlertDialog.Builder(RegisterActivity.this);
         //设置标题
         builder.setTitle("请选择您的身份");
         builder.setItems(items, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
-              mycode = i;
-                HttpUtil.post(formBody,NetWorkData.register_api).enqueue(new Callback() {
-                    @Override
-                    public void onFailure(final Call call, final IOException e) {
-                        final String e_str = e.getMessage();
-                        runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                if(e_str.contains("1000")){
-                                  Toast.makeText(RegisterActivity.this, "手机号已被注册！", Toast.LENGTH_SHORT).show();
-                              }else if(e_str.contains("1001")){
-                                  Toast.makeText(RegisterActivity.this, "手机号格式错误", Toast.LENGTH_SHORT).show();
-                              }else if(e_str.contains("1002")){
-                                  Toast.makeText(RegisterActivity.this, "用户ID不存在", Toast.LENGTH_SHORT).show();
-                              }else if(e_str.contains("1003")){
-                                  Toast.makeText(RegisterActivity.this, "认证失败", Toast.LENGTH_SHORT).show();
-                              }else if(e_str.contains("1004")){
-                                  Toast.makeText(RegisterActivity.this, "身份选择错误", Toast.LENGTH_SHORT).show();
-                              }else{
-                                    Toast.makeText(RegisterActivity.this, "服务器错误或者网络不通畅！", Toast.LENGTH_SHORT).show();
-                                }
-                            }
-                        });
-                    }
-
-                    @Override
-                    public void onResponse(Call call, Response response) throws IOException {
-                        String res = response.body().string();
-                        Log.d("MRSS",res);
-                        if(res!=null){
-                            UserInfo userinfo = GsonUtil.parseJsonWithGson(res, UserInfo.class);
-
-                            //是否成功
-                            runOnUiThread(new Runnable() {
-                                @Override
-                                public void run() {
-                                    Toast.makeText(RegisterActivity.this, "注册成功！", Toast.LENGTH_SHORT).show();
-                                    //注册成功之后就可以跳转到登录
-                                    startActivity(new Intent(RegisterActivity.this,LoginActivity.class));
-                                    finish();
-                                }
-                            });
-                        }else{
-                            Toast.makeText(RegisterActivity.this, "服务器错误！", Toast.LENGTH_SHORT).show();
-                        }
-                    }
-                });
+                //这是服务器标准表单，具体的内容可以参照FormData这个类里的数据
+                CreateForm(i);
             }
         });
         builder.create();
         builder.show();
-        return String.valueOf(mycode);
+    }
+
+    private void CreateForm(int i) {
+        formBody = new FormBody.Builder()
+                .add(FormData.phone, phoneNUmber)
+                .add(FormData.pswd, pswd.getText().toString())
+                .add(FormData.name, phoneNUmber)
+                .add(FormData.category, String.valueOf(i))
+                .build();
+        Log.d("SSSS", String.valueOf(i));
+        startConn(formBody);
+    }
+
+    private void startConn(FormBody formBody) {
+        HttpUtil.post(formBody,NetWorkData.register_api).enqueue(new Callback() {
+            @Override
+            public void onFailure(final Call call, final IOException e) {
+                final String e_str = e.getMessage();
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        if(e_str.contains("1000")){
+                            Toast.makeText(RegisterActivity.this, "手机号已被注册！", Toast.LENGTH_SHORT).show();
+                        }else if(e_str.contains("1001")){
+                            Toast.makeText(RegisterActivity.this, "手机号格式错误", Toast.LENGTH_SHORT).show();
+                        }else if(e_str.contains("1002")){
+                            Toast.makeText(RegisterActivity.this, "用户ID不存在", Toast.LENGTH_SHORT).show();
+                        }else if(e_str.contains("1003")){
+                            Toast.makeText(RegisterActivity.this, "认证失败", Toast.LENGTH_SHORT).show();
+                        }else if(e_str.contains("1004")){
+                            Toast.makeText(RegisterActivity.this, "身份选择错误", Toast.LENGTH_SHORT).show();
+                        }else{
+                            Toast.makeText(RegisterActivity.this, "服务器错误或者网络不通畅！", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                });
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                String res = response.body().string();
+                Log.d("MRSS",res);
+                if(res!=null){
+                    UserInfo userinfo = GsonUtil.parseJsonWithGson(res, UserInfo.class);
+
+                    //是否成功
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            Toast.makeText(RegisterActivity.this, "注册成功！", Toast.LENGTH_SHORT).show();
+                            //注册成功之后就可以跳转到登录
+                            startActivity(new Intent(RegisterActivity.this,LoginActivity.class));
+                            finish();
+                        }
+                    });
+                }else{
+                    Toast.makeText(RegisterActivity.this, "服务器错误！", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
     }
 }

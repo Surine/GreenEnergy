@@ -9,6 +9,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.greenenergy.greenenergy.Bean.UserInfo;
@@ -31,6 +32,7 @@ public class LoginActivity extends AppCompatActivity {
     private Button login;
     String phone_str;
     String pswd_str;
+    private TextView mTextView;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -40,6 +42,7 @@ public class LoginActivity extends AppCompatActivity {
         phone = (EditText) findViewById(R.id.phone);
         pswd = (EditText) findViewById(R.id.pswd);
         login = (Button) findViewById(R.id.login);
+        mTextView = (TextView) findViewById(R.id.textView4);
 
         login.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -49,6 +52,7 @@ public class LoginActivity extends AppCompatActivity {
                 if(phone_str.equals("")||pswd_str.equals("")){
                     Toast.makeText(LoginActivity.this,"请填写完整信息",Toast.LENGTH_SHORT).show();
                 }else{
+                    mTextView.setText("正在登录……");
                     FormBody formBody = new FormBody.Builder()
                             .add(FormData.phone, phone_str)
                             .add(FormData.pswd, pswd_str)
@@ -65,12 +69,13 @@ public class LoginActivity extends AppCompatActivity {
     private void startHttpConn(FormBody formBody) {
         HttpUtil.post(formBody, NetWorkData.login_api).enqueue(new Callback() {
             @Override
-            public void onFailure(Call call, IOException e) {
+            public void onFailure(Call call, final IOException e) {
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
                         Toast.makeText(LoginActivity.this, "网络错误！", Toast.LENGTH_SHORT).show();
-
+                        Log.d("SSSS",e.getMessage());
+                        mTextView.setText("登录");
                     }
                 });
             }
@@ -79,17 +84,20 @@ public class LoginActivity extends AppCompatActivity {
             public void onResponse(Call call, Response response) throws IOException {
                 final String en_str = response.body().string();
                 Log.d("SSSS",en_str);
-                if(en_str!=null) {
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        if(!en_str.equals("")) {
                             Toast.makeText(LoginActivity.this, "登录成功！", Toast.LENGTH_SHORT).show();
-                        }
-                    });
                     UserInfo userinfo = GsonUtil.parseJsonWithGson(en_str, UserInfo.class);
                     saveInfo(userinfo);
                     startIntent();
-                }
+                    }else{
+                        mTextView.setText("登录");
+                        Toast.makeText(LoginActivity.this, "账号或密码错误！", Toast.LENGTH_SHORT).show();
+                    }
+                    }
+                });
             }
         });
     }
