@@ -2,6 +2,7 @@ package com.greenenergy.greenenergy.UI;
 
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
@@ -11,11 +12,13 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Base64;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.baidu.location.BDLocation;
@@ -30,12 +33,27 @@ import com.baidu.mapapi.map.MyLocationConfiguration;
 import com.baidu.mapapi.map.MyLocationConfiguration.LocationMode;
 import com.baidu.mapapi.map.MyLocationData;
 import com.baidu.mapapi.model.LatLng;
+import com.greenenergy.greenenergy.Bean.UserBusBean;
+import com.greenenergy.greenenergy.Bean.UserInfo;
 import com.greenenergy.greenenergy.Init.StatusUI;
+import com.greenenergy.greenenergy.MyData.FormData;
+import com.greenenergy.greenenergy.MyData.NetWorkData;
 import com.greenenergy.greenenergy.R;
 import com.greenenergy.greenenergy.Utils.AppUtil;
+import com.greenenergy.greenenergy.Utils.GsonUtil;
+import com.greenenergy.greenenergy.Utils.HttpUtil;
 import com.greenenergy.greenenergy.Utils.NetUtil;
 
+import java.io.File;
+import java.io.IOException;
+
+import de.greenrobot.event.EventBus;
+import de.greenrobot.event.Subscribe;
 import google.google.zxing.activity.CaptureActivity;
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.FormBody;
+import okhttp3.Response;
 
 public class MainActivity extends AppCompatActivity {
      private DrawerLayout mDrawerLayout;
@@ -53,7 +71,13 @@ public class MainActivity extends AppCompatActivity {
     private ImageView error;
     final String items[] = {"垃圾桶损坏", "区域不整洁", "举报违规", "其他问题"};
     private Button scan;
-    private int REQUEST_CODE = 1;
+    private String pswd_str;
+    private String phone_str;
+    private TextView phonenum;
+    private TextView category;
+    private TextView score;
+    private TextView energy;
+    private TextView other;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -62,16 +86,31 @@ public class MainActivity extends AppCompatActivity {
 
         StatusUI.StatusUISetting(this,"#50000000");
 
+        EventBus.getDefault().register(this);
+
         //toolbar
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         mDrawerLayout = (DrawerLayout) findViewById(R.id.draw);
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav);
+        View headerView = navigationView.getHeaderView(0);
+        phonenum = (TextView) headerView.findViewById(R.id.PhoneNum);
+        category = (TextView) headerView.findViewById(R.id.category);
+        score = (TextView) headerView.findViewById(R.id.score);
+        energy = (TextView) headerView.findViewById(R.id.energy);
+        other = (TextView) headerView.findViewById(R.id.other);
+
+        //本地更新UI
+        updateUI();
+
         ActionBar actionBar = getSupportActionBar();
         if(actionBar!=null){
             actionBar.setDisplayHomeAsUpEnabled(true);
             actionBar.setHomeAsUpIndicator(R.drawable.ic_menu);
         }
+
+        //检查登录
+        CheckLogin();
 
         navigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
             @Override
@@ -155,6 +194,91 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+    private void updateUI() {
+        SharedPreferences share = getSharedPreferences("data",MODE_PRIVATE);
+        phonenum.setText(share.getString("PHONE","ERROR"));
+        if(share.getString("CATEGORY","0").equals("0")){
+            category.setText("普通VIP");
+        }else{
+            category.setText("社区管理");
+        }
+        score.setText(share.getString("SCORE","0"));
+        energy.setText(share.getString("ENERGY","0"));
+        other.setText(share.getString("OTHER","0"));
+    }
+
+    private void CheckLogin() {
+       new Thread(new Runnable() {
+           @Override
+           public void run() {
+               SharedPreferences share = getSharedPreferences("data",MODE_PRIVATE);
+               phone_str = share.getString("TOKEN_1","#####");
+               String base_str = share.getString("TOKEN_2","####");
+               pswd_str =  new String
+                       (Base64.decode(base_str.getBytes(), Base64.DEFAULT));
+               FormBody formBody = new FormBody.Builder()
+                       .add(FormData.phone, phone_str)
+                       .add(FormData.pswd, pswd_str)
+                       .build();
+               //登陆的网络请求
+               startHttpConn(formBody);
+           }
+       }).start();
+    }
+
+    private void startHttpConn(FormBody formBody) {
+        HttpUtil.post(formBody, NetWorkData.login_api).enqueue(new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+              //  Login_Error();
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                final String en_str = response.body().string();
+                //TODO：成功就啥都不提示
+              //  Login_Error();
+                if(en_str!=null) {
+                    UserInfo userinfo = GsonUtil.parseJsonWithGson(en_str, UserInfo.class);
+                    saveInfo(userinfo);
+                    EventBus.getDefault().post(new UserBusBean(1,userinfo));
+                }else{
+                    Login_Error();
+                }
+            }
+        });
+    }
+
+    private void Login_Error() {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+                builder.setTitle("提示");
+                builder.setMessage("登录信息失效，请重新登录");
+                builder.setCancelable(false);
+                builder.setPositiveButton("确定", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        File file = new File("/data/data/com.greenenergy.greenenergy/shared_prefs/data.xml");
+                        deletefile(file);
+                        startActivity(new Intent(MainActivity.this,RegisterActivity.class));
+                        finish();
+                    }
+                });
+                builder.show();
+            }
+        });
+    }
+
+    private void deletefile(File file) {
+        if(file.exists()){
+            if(file.isFile()){
+                file.delete();   //delete the  SharedPreferences
+            }
+        }
+    }
+
     private void scan() {
       scan = (Button)findViewById(R.id.scan);
         scan.setOnClickListener(new View.OnClickListener() {
@@ -205,6 +329,20 @@ public class MainActivity extends AppCompatActivity {
 //        }
     }
 
+    private void saveInfo(UserInfo userinfo) {
+        // encodeToString will return string value
+        String enToStr = Base64.encodeToString(pswd_str.getBytes(), Base64.DEFAULT);
+        SharedPreferences.Editor editor = getSharedPreferences("data",MODE_PRIVATE).edit();
+        editor.putBoolean("isfirstlogin",false);
+        editor.putString("TOKEN_1",phone_str);
+        editor.putString("TOKEN_2",enToStr);   //储存账号密码
+        editor.putString("PHONE",userinfo.getPhoneNum());
+        editor.putString("CATEGORY",userinfo.getCategory());
+        editor.putString("SCORE",userinfo.getScore().getScore());
+        editor.putString("ENERGY",userinfo.getScore().getEnergy());
+        editor.putString("OTHER",userinfo.getScore().getOther());
+        editor.apply();
+    }
 
     private void MyZoomControl() {
         zoomInBtn = (Button) findViewById(R.id.zoomin);
@@ -328,7 +466,8 @@ public class MainActivity extends AppCompatActivity {
     protected void onDestroy() {
         super.onDestroy();
         mlc.stop();
-        // 开启定位图层
+        EventBus.getDefault().unregister(this);
+        // 关闭定位图层
         baidumap.setMyLocationEnabled(false);
     }
 
@@ -363,5 +502,11 @@ public class MainActivity extends AppCompatActivity {
         mmap.onPause();
     }
 
+    @Subscribe
+    public void onEventMainThread(final UserBusBean event) {
+      if(event.getBus_id() == 1){
+          updateUI();
+      }
+    }
 
 }

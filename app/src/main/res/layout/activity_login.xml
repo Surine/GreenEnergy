@@ -83,6 +83,6 @@
         android:layout_below="@+id/login"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="18dp"
-        android:text="注册即代表同意《使用协议》"/>
+        android:text="登录即代表同意《使用协议》"/>
 
 </RelativeLayout>

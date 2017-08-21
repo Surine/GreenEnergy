@@ -12,9 +12,12 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import com.greenenergy.greenenergy.Bean.UserInfo;
 import com.greenenergy.greenenergy.Init.StatusUI;
+import com.greenenergy.greenenergy.MyData.FormData;
 import com.greenenergy.greenenergy.MyData.NetWorkData;
 import com.greenenergy.greenenergy.R;
+import com.greenenergy.greenenergy.Utils.GsonUtil;
 import com.greenenergy.greenenergy.Utils.HttpUtil;
 
 import java.io.IOException;
@@ -41,6 +44,7 @@ public class RegisterActivity extends AppCompatActivity {
     private String code_string;
     final String items[] = {"普通居民", "环卫工人"};
     private String pswd_String;
+    private FormBody formBody;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -160,44 +164,12 @@ public class RegisterActivity extends AppCompatActivity {
         //TODO：用户注册方式
 
         //这是服务器标准表单，具体的内容可以参照FormData这个类里的数据
-//        FormBody formBody = new FormBody.Builder()
-//                .add(FormData.phone, phoneNUmber)
-//                .add(FormData.pswd, pswd.getText().toString())
-//                .add(FormData.name, phoneNUmber)
-//                .add(FormData.category, getCode())
-//                .build();
-
-        //这里是我用我的服务器注册后端测试的，可以接收到数据
-        FormBody formBody = new FormBody.Builder()
-                .add("user", phoneNUmber)
-                .add("pswd", pswd.getText().toString())
+        formBody = new FormBody.Builder()
+                .add(FormData.phone, phoneNUmber)
+                .add(FormData.pswd, pswd.getText().toString())
+                .add(FormData.name, phoneNUmber)
+                .add(FormData.category, getCode())
                 .build();
-        HttpUtil.post(formBody,"http://surine.cn/php/androidlogin/Register.php").enqueue(new Callback() {
-            @Override
-            public void onFailure(Call call, IOException e) {
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        Toast.makeText(RegisterActivity.this, "网络错误！", Toast.LENGTH_SHORT).show();
-
-                    }
-                });
-            }
-
-            @Override
-            public void onResponse(Call call, Response response) throws IOException {
-                Log.d("MRSS",response.body().string());
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        Toast.makeText(RegisterActivity.this, "注册成功！", Toast.LENGTH_SHORT).show();
-
-                    }
-                });
-                //注册成功之后就可以跳转到登录
-                startActivity(new Intent(RegisterActivity.this,LoginActivity.class));
-            }
-        });
     }
 
     //这里可以获取身份（直接返回0，或1）
@@ -209,6 +181,52 @@ public class RegisterActivity extends AppCompatActivity {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
               mycode = i;
+                HttpUtil.post(formBody,NetWorkData.register_api).enqueue(new Callback() {
+                    @Override
+                    public void onFailure(final Call call, final IOException e) {
+                        final String e_str = e.getMessage();
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                if(e_str.contains("1000")){
+                                  Toast.makeText(RegisterActivity.this, "手机号已被注册！", Toast.LENGTH_SHORT).show();
+                              }else if(e_str.contains("1001")){
+                                  Toast.makeText(RegisterActivity.this, "手机号格式错误", Toast.LENGTH_SHORT).show();
+                              }else if(e_str.contains("1002")){
+                                  Toast.makeText(RegisterActivity.this, "用户ID不存在", Toast.LENGTH_SHORT).show();
+                              }else if(e_str.contains("1003")){
+                                  Toast.makeText(RegisterActivity.this, "认证失败", Toast.LENGTH_SHORT).show();
+                              }else if(e_str.contains("1004")){
+                                  Toast.makeText(RegisterActivity.this, "身份选择错误", Toast.LENGTH_SHORT).show();
+                              }else{
+                                    Toast.makeText(RegisterActivity.this, "服务器错误或者网络不通畅！", Toast.LENGTH_SHORT).show();
+                                }
+                            }
+                        });
+                    }
+
+                    @Override
+                    public void onResponse(Call call, Response response) throws IOException {
+                        String res = response.body().string();
+                        Log.d("MRSS",res);
+                        if(res!=null){
+                            UserInfo userinfo = GsonUtil.parseJsonWithGson(res, UserInfo.class);
+
+                            //是否成功
+                            runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    Toast.makeText(RegisterActivity.this, "注册成功！", Toast.LENGTH_SHORT).show();
+                                    //注册成功之后就可以跳转到登录
+                                    startActivity(new Intent(RegisterActivity.this,LoginActivity.class));
+                                    finish();
+                                }
+                            });
+                        }else{
+                            Toast.makeText(RegisterActivity.this, "服务器错误！", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                });
             }
         });
         builder.create();

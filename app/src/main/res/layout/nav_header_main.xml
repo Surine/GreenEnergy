@@ -17,7 +17,7 @@
         android:src="@drawable/head"/>
 
     <TextView
-        android:id="@+id/textView"
+        android:id="@+id/PhoneNum"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="19dp"
@@ -25,16 +25,17 @@
         android:textSize="20sp"
         android:text="用户名"
         android:layout_marginBottom="7dp"
-        android:layout_above="@+id/textView2"
+        android:layout_above="@+id/category"
         android:layout_toEndOf="@+id/circleImageView"/>
 
     <TextView
-        android:id="@+id/textView2"
+        android:id="@+id/category"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textColor="@color/textback"
+        android:textColor="#fff"
+        android:background="@color/colorAccent"
         android:layout_alignBottom="@+id/circleImageView"
-        android:layout_alignStart="@+id/textView"
+        android:layout_alignStart="@+id/PhoneNum"
         android:text="注册信息"/>
     <LinearLayout
         android:layout_width="match_parent"

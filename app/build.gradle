@@ -44,5 +44,6 @@ dependencies {
     compile 'cn.bmob.android:bmob-sdk:3.4.7-aar'
     compile 'cn.bmob.android:bmob-sms:1.0.1'
     compile 'com.google.zxing:core:3.2.1'
+    compile 'com.google.code.gson:gson:2.8.0'
     testCompile 'junit:junit:4.12'
 }

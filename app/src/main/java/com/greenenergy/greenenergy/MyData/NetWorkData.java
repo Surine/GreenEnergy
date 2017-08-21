@@ -8,7 +8,7 @@ public class NetWorkData {
     //服务器IP端口
     public static String IP_port = "http://surine.cn:6060";
     //使用协议
-    public static String lis = "http://www.baidu.com";
+    public static String lis = "http://surine.cn/GreenEnergyFiles/user_lis.html";
     //押金说明
     public static String money= "http://surine.cn:6060";
     //充值说明
@@ -20,5 +20,7 @@ public class NetWorkData {
     //短信模板
     public static String smsmodel = "celitea验证码";
     //注册接口
-    public static String register_api = "http://surine.cn:6060/register";
+    public static String register_api = IP_port+"/register";
+    //登录接口
+    public static String login_api = IP_port+"/login";
 }
