@@ -4,6 +4,7 @@
 
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
+
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
     <uses-permission android:name="android.permission.CHANGE_WIFI_STATE"/>
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE"/>
@@ -40,7 +41,8 @@
             android:name="com.baidu.location.f"
             android:enabled="true"
             android:process=":remote"/>
-
+        <activity android:name=".Init.BaseActivity">
+        </activity>
         <activity android:name=".UI.MainActivity">
         </activity>
         <activity android:name=".UI.LoginActivity">
@@ -67,6 +69,8 @@
         </activity>
         <activity android:name="google.google.zxing.activity.CaptureActivity"/>
         <activity android:name=".UI.CheckActivity">
+        </activity>
+        <activity android:name=".UI.MessageActivity">
         </activity>
     </application>
 

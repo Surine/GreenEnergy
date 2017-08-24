@@ -1,11 +1,11 @@
 package com.greenenergy.greenenergy.UI;
 
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 
+import com.greenenergy.greenenergy.Init.BaseActivity;
 import com.greenenergy.greenenergy.R;
 
-public class UserInfoActivity extends AppCompatActivity {
+public class UserInfoActivity extends BaseActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

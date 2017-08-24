@@ -2,9 +2,8 @@ package com.greenenergy.greenenergy.UI;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.support.v7.app.ActionBar;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.app.ActionBar;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -12,11 +11,12 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 
+import com.greenenergy.greenenergy.Init.BaseActivity;
 import com.greenenergy.greenenergy.Init.StatusUI;
 import com.greenenergy.greenenergy.MyData.NetWorkData;
 import com.greenenergy.greenenergy.R;
 
-public class RecycActivity extends AppCompatActivity {
+public class RecycActivity extends BaseActivity {
     private Button com;
     private Button home;
     private EditText addr;

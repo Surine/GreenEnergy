@@ -3,7 +3,6 @@ package com.greenenergy.greenenergy.UI;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
 import android.util.Base64;
 import android.util.Log;
 import android.view.View;
@@ -13,6 +12,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.greenenergy.greenenergy.Bean.UserInfo;
+import com.greenenergy.greenenergy.Init.BaseActivity;
 import com.greenenergy.greenenergy.MyData.FormData;
 import com.greenenergy.greenenergy.MyData.NetWorkData;
 import com.greenenergy.greenenergy.R;
@@ -26,7 +26,7 @@ import okhttp3.Callback;
 import okhttp3.FormBody;
 import okhttp3.Response;
 
-public class LoginActivity extends AppCompatActivity {
+public class LoginActivity extends BaseActivity {
     private EditText phone;
     private EditText pswd;
     private Button login;
@@ -70,11 +70,23 @@ public class LoginActivity extends AppCompatActivity {
         HttpUtil.post(formBody, NetWorkData.login_api).enqueue(new Callback() {
             @Override
             public void onFailure(Call call, final IOException e) {
+                final String e_str = e.getMessage();
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        Toast.makeText(LoginActivity.this, "网络错误！", Toast.LENGTH_SHORT).show();
-                        Log.d("SSSS",e.getMessage());
+                        if(e_str.contains("1000")){
+                            Toast.makeText(LoginActivity.this, "手机号已被注册！", Toast.LENGTH_SHORT).show();
+                        }else if(e_str.contains("1001")){
+                            Toast.makeText(LoginActivity.this, "手机号格式错误", Toast.LENGTH_SHORT).show();
+                        }else if(e_str.contains("1002")){
+                            Toast.makeText(LoginActivity.this, "用户ID不存在", Toast.LENGTH_SHORT).show();
+                        }else if(e_str.contains("1003")){
+                            Toast.makeText(LoginActivity.this, "认证失败，请检查账号密码", Toast.LENGTH_SHORT).show();
+                        }else if(e_str.contains("1004")){
+                            Toast.makeText(LoginActivity.this, "身份选择错误", Toast.LENGTH_SHORT).show();
+                        }else{
+                            Toast.makeText(LoginActivity.this, "服务器错误或者网络不通畅！", Toast.LENGTH_SHORT).show();
+                        }
                         mTextView.setText("登录");
                     }
                 });
@@ -87,11 +99,11 @@ public class LoginActivity extends AppCompatActivity {
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        if(!en_str.equals("")) {
-                            Toast.makeText(LoginActivity.this, "登录成功！", Toast.LENGTH_SHORT).show();
-                    UserInfo userinfo = GsonUtil.parseJsonWithGson(en_str, UserInfo.class);
-                    saveInfo(userinfo);
-                    startIntent();
+                    if(!en_str.equals("")) {
+                        Toast.makeText(LoginActivity.this, "登录成功！", Toast.LENGTH_SHORT).show();
+                        UserInfo userinfo = GsonUtil.parseJsonWithGson(en_str, UserInfo.class);
+                        saveInfo(userinfo);
+                        startIntent();
                     }else{
                         mTextView.setText("登录");
                         Toast.makeText(LoginActivity.this, "账号或密码错误！", Toast.LENGTH_SHORT).show();
@@ -115,6 +127,7 @@ public class LoginActivity extends AppCompatActivity {
         editor.putString("TOKEN_1",phone_str);
         editor.putString("TOKEN_2",enToStr);   //储存账号密码
         editor.putString("PHONE",userinfo.getPhoneNum());
+        editor.putString("USERID",userinfo.getID());
         editor.putString("CATEGORY",userinfo.getCategory());
         editor.putString("SCORE",userinfo.getScore().getScore());
         editor.putString("ENERGY",userinfo.getScore().getEnergy());

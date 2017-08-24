@@ -3,17 +3,17 @@ package com.greenenergy.greenenergy.UI;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v7.app.ActionBar;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.KeyEvent;
 import android.view.MenuItem;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import com.greenenergy.greenenergy.Init.BaseActivity;
 import com.greenenergy.greenenergy.Init.StatusUI;
 import com.greenenergy.greenenergy.R;
 
-public class AddrSetActivity extends AppCompatActivity {
+public class AddrSetActivity extends BaseActivity {
     private EditText home;
     private EditText comp;
     private TextView text;

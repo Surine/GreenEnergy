@@ -47,16 +47,16 @@
                 android:layout_marginStart="18dp"/>
 
             <Button
-                android:id="@+id/button7"
+                android:id="@+id/list"
                 style="@style/Widget.AppCompat.Button.Borderless.Colored"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignParentBottom="true"
-                android:layout_toStartOf="@+id/button5"
+                android:layout_toStartOf="@+id/charge"
                 android:text="账单"/>
 
             <Button
-                android:id="@+id/button5"
+                android:id="@+id/charge"
                 style="@style/Widget.AppCompat.Button.Borderless.Colored"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -75,7 +75,7 @@
                 android:layout_alignParentTop="true"
                 android:layout_alignParentEnd="true"
                 android:layout_toEndOf="@+id/textView9"
-                android:layout_above="@+id/button7"/>
+                android:layout_above="@+id/list"/>
 
             <TextView
                 android:layout_width="wrap_content"
@@ -114,8 +114,6 @@
                 android:id="@+id/textView13"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_alignStart="@+id/cardView2"
-                android:layout_alignTop="@+id/cardView2"
                 android:layout_marginStart="19dp"
                 android:layout_marginTop="10dp"
                 android:text="我的优惠券"/>

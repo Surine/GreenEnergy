@@ -39,6 +39,8 @@ public class SettingFragment extends PreferenceFragment implements Preference.On
     private Preference mPreference_charge;
     private Preference mPreference_exit;
     private Preference mPreference_check;
+    private Preference mPreference_about;
+    private Preference mPreference_osl;
     private ProgressDialog pg;
     private String url = null;
     public void onCreate(Bundle savedInstanceState) {
@@ -56,6 +58,8 @@ public class SettingFragment extends PreferenceFragment implements Preference.On
          mPreference_charge.setOnPreferenceClickListener(this);
          mPreference_exit.setOnPreferenceClickListener(this);
          mPreference_check.setOnPreferenceClickListener(this);
+         mPreference_about.setOnPreferenceClickListener(this);
+         mPreference_osl.setOnPreferenceClickListener(this);
     }
 
     private void findview() {
@@ -66,6 +70,8 @@ public class SettingFragment extends PreferenceFragment implements Preference.On
         mPreference_charge = findPreference("charge");
         mPreference_exit = findPreference("exit");
         mPreference_check = findPreference("check");
+        mPreference_about = findPreference("about");
+        mPreference_osl = findPreference("osl");
     }
 
     @Override
@@ -85,6 +91,10 @@ public class SettingFragment extends PreferenceFragment implements Preference.On
             exit();
         }else if(preference == mPreference_check){
             checkUpdate();
+        }else if(preference == mPreference_about){
+            startActivity(new Intent(getActivity(), WebViewActivity.class).putExtra("URL", NetWorkData.about).putExtra("TITLE","关于我们"));
+        }else if(preference == mPreference_osl){
+            startActivity(new Intent(getActivity(), WebViewActivity.class).putExtra("URL", NetWorkData.osl).putExtra("TITLE","开源协议"));
         }
         return true;
     }

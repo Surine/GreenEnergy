@@ -13,4 +13,8 @@ public class FormData {
     public static String pswd = "password";
     //注册：职务
     public static String category = "category";
+    //用户id
+    public static String id = "id";
+    //垃圾桶id
+    public static String transhid = "transhid";
 }

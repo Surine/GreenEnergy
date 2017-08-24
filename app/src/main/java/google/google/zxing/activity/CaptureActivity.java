@@ -23,6 +23,7 @@ import android.view.SurfaceView;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.google.zxing.BarcodeFormat;
@@ -33,6 +34,7 @@ import com.greenenergy.greenenergy.UI.CheckActivity;
 
 import java.io.IOException;
 import java.util.Vector;
+import java.util.regex.Pattern;
 
 import google.google.zxing.camera.CameraManager;
 import google.google.zxing.decoding.CaptureActivityHandler;
@@ -61,6 +63,8 @@ public class CaptureActivity extends AppCompatActivity implements Callback {
 	private Camera.Parameters parameter;
 	private boolean isOpen =false;
 	private Button number;
+	private ImageView key;
+	private ImageView light_icon;
 	private EditText editText;
 //	private Button cancelScanButton;
 
@@ -86,6 +90,14 @@ public class CaptureActivity extends AppCompatActivity implements Callback {
 		inactivityTimer = new InactivityTimer(this);
 
 		light = (Button) findViewById(R.id.light);
+		light_icon = (ImageView) findViewById(R.id.light_icon);
+		light_icon.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View view) {
+				//闪光灯
+				CameraManager.get().flashHandler();
+			}
+		});
 		light.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View view) {
@@ -93,31 +105,41 @@ public class CaptureActivity extends AppCompatActivity implements Callback {
 				CameraManager.get().flashHandler();
 			}
 		});
-
+        key = (ImageView) findViewById(R.id.key);
+		key.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View view) {
+				ShowDialog();
+			}
+		});
 		number = (Button)findViewById(R.id.number);
 		number.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View view) {
-				View myview = LayoutInflater.from(CaptureActivity.this).inflate(R.layout.dialog_input_number,null);
-				editText = (EditText) myview.findViewById(R.id.enter_number);
-				AlertDialog.Builder builder = new AlertDialog.Builder(CaptureActivity.this);
-
-				builder.setView(myview);
-				builder.setPositiveButton("确定", new DialogInterface.OnClickListener() {
-					@Override
-					public void onClick(DialogInterface dialogInterface, int i) {
-					   	if(!editText.getText().toString().equals("")){
-							startActivity(new Intent(CaptureActivity.this,CheckActivity.class));
-							finish();
-						}else{
-							Toast.makeText(CaptureActivity.this,"输入有误",Toast.LENGTH_SHORT).show();
-						}
-					}
-				});
-				builder.create();
-				builder.show();
+			ShowDialog();
 			}
 		});
+	}
+
+	private void ShowDialog() {
+		View myview = LayoutInflater.from(CaptureActivity.this).inflate(R.layout.dialog_input_number,null);
+		editText = (EditText) myview.findViewById(R.id.enter_number);
+		AlertDialog.Builder builder = new AlertDialog.Builder(CaptureActivity.this);
+
+		builder.setView(myview);
+		builder.setPositiveButton("确定", new DialogInterface.OnClickListener() {
+			@Override
+			public void onClick(DialogInterface dialogInterface, int i) {
+				if(!editText.getText().toString().equals("")&&editText.getText().toString().length()==10){
+					startActivity(new Intent(CaptureActivity.this,CheckActivity.class).putExtra("RESULT",editText.getText().toString()));
+					finish();
+				}else{
+					Toast.makeText(CaptureActivity.this,"输入有误",Toast.LENGTH_SHORT).show();
+				}
+			}
+		});
+		builder.create();
+		builder.show();
 	}
 
 	@Override
@@ -196,11 +218,22 @@ public class CaptureActivity extends AppCompatActivity implements Callback {
 //			bundle.putString("result", resultString);
 //			resultIntent.putExtras(bundle);
 //			this.setResult(RESULT_OK, resultIntent);
-			startActivity(new Intent(CaptureActivity.this,CheckActivity.class).putExtra("RESULT",resultString));
-			finish();
+			if(isDia(resultString)&&resultString.length() == 10) {
+				startActivity(new Intent(CaptureActivity.this, CheckActivity.class).putExtra("RESULT", resultString));
+				finish();
+			}else{
+				Toast.makeText(CaptureActivity.this, "鉴权失败!", Toast.LENGTH_SHORT).show();
+				finish();
+			}
 		}
 	}
-	
+
+	//检查是否纯数字
+	private boolean isDia(String resultString) {
+		Pattern pattern = Pattern.compile("[0-9]*");
+		return pattern.matcher(resultString).matches();
+	}
+
 	private void initCamera(SurfaceHolder surfaceHolder) {
 		try {
 			CameraManager.get().openDriver(surfaceHolder);

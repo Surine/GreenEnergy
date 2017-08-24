@@ -2,16 +2,16 @@ package com.greenenergy.greenenergy.UI;
 
 import android.os.Bundle;
 import android.support.v7.app.ActionBar;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
+import com.greenenergy.greenenergy.Init.BaseActivity;
 import com.greenenergy.greenenergy.Init.StatusUI;
 import com.greenenergy.greenenergy.R;
 
-public class WebViewActivity extends AppCompatActivity {
+public class WebViewActivity extends BaseActivity {
 
     private WebView webview;
 

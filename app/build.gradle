@@ -9,6 +9,7 @@ android {
         targetSdkVersion 25
         versionCode 1
         versionName "1.0"
+        multiDexEnabled true
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
     buildTypes {
@@ -32,8 +33,6 @@ dependencies {
         exclude group: 'com.android.support', module: 'support-annotations'
     })
     compile files('libs/BaiduLBS_Android.jar')
-    //bmob-sms ：Bmob单独为短信服务提供的包
-    compile 'com.android.support.constraint:constraint-layout:1.0.2'
     compile 'com.android.support.constraint:constraint-layout:1.0.2'
     compile 'de.greenrobot:eventbus:3.0.0-beta1'
     compile 'com.android.support:appcompat-v7:25.3.1'

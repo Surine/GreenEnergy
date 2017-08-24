@@ -3,6 +3,7 @@ package com.greenenergy.greenenergy.UI;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
@@ -10,12 +11,14 @@ import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AlertDialog;
-import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.CardView;
 import android.support.v7.widget.Toolbar;
-import android.util.Base64;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.animation.Animation;
+import android.view.animation.TranslateAnimation;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -26,36 +29,54 @@ import com.baidu.location.BDLocationListener;
 import com.baidu.location.LocationClient;
 import com.baidu.location.LocationClientOption;
 import com.baidu.mapapi.map.BaiduMap;
+import com.baidu.mapapi.map.BitmapDescriptor;
+import com.baidu.mapapi.map.BitmapDescriptorFactory;
 import com.baidu.mapapi.map.MapStatusUpdate;
 import com.baidu.mapapi.map.MapStatusUpdateFactory;
 import com.baidu.mapapi.map.MapView;
+import com.baidu.mapapi.map.Marker;
+import com.baidu.mapapi.map.MarkerOptions;
 import com.baidu.mapapi.map.MyLocationConfiguration;
 import com.baidu.mapapi.map.MyLocationConfiguration.LocationMode;
 import com.baidu.mapapi.map.MyLocationData;
+import com.baidu.mapapi.map.OverlayOptions;
 import com.baidu.mapapi.model.LatLng;
-import com.greenenergy.greenenergy.Bean.UserBusBean;
-import com.greenenergy.greenenergy.Bean.UserInfo;
+import com.baidu.mapapi.search.core.SearchResult;
+import com.baidu.mapapi.search.route.BikingRouteResult;
+import com.baidu.mapapi.search.route.DrivingRouteResult;
+import com.baidu.mapapi.search.route.IndoorRouteResult;
+import com.baidu.mapapi.search.route.MassTransitRouteResult;
+import com.baidu.mapapi.search.route.OnGetRoutePlanResultListener;
+import com.baidu.mapapi.search.route.PlanNode;
+import com.baidu.mapapi.search.route.RoutePlanSearch;
+import com.baidu.mapapi.search.route.TransitRouteResult;
+import com.baidu.mapapi.search.route.WalkingRoutePlanOption;
+import com.baidu.mapapi.search.route.WalkingRouteResult;
+import com.greenenergy.greenenergy.Bean.BaiduPoiInfo;
+import com.greenenergy.greenenergy.Bean.Can_Poi;
+import com.greenenergy.greenenergy.Bean.SimpleBusBean;
+import com.greenenergy.greenenergy.Init.BaseActivity;
 import com.greenenergy.greenenergy.Init.StatusUI;
-import com.greenenergy.greenenergy.MyData.FormData;
 import com.greenenergy.greenenergy.MyData.NetWorkData;
 import com.greenenergy.greenenergy.R;
 import com.greenenergy.greenenergy.Utils.AppUtil;
 import com.greenenergy.greenenergy.Utils.GsonUtil;
 import com.greenenergy.greenenergy.Utils.HttpUtil;
 import com.greenenergy.greenenergy.Utils.NetUtil;
+import com.greenenergy.greenenergy.Utils.WalkingRouteOverlay;
 
-import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 import de.greenrobot.event.EventBus;
 import de.greenrobot.event.Subscribe;
 import google.google.zxing.activity.CaptureActivity;
 import okhttp3.Call;
 import okhttp3.Callback;
-import okhttp3.FormBody;
 import okhttp3.Response;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends BaseActivity{
      private DrawerLayout mDrawerLayout;
     private MapView mmap;
     private Button zoomInBtn;
@@ -78,6 +99,16 @@ public class MainActivity extends AppCompatActivity {
     private TextView score;
     private TextView energy;
     private TextView other;
+    private MarkerOptions markerOptions;
+    private Marker marker;
+    private RoutePlanSearch mSearch;
+    private CardView mCardView;
+    private Button exit_info;
+    private TextView uid_can;
+    private TextView time;
+    private String marker_id;
+    private TranslateAnimation mShowAction;
+    private TranslateAnimation mHiddenAction;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -90,8 +121,13 @@ public class MainActivity extends AppCompatActivity {
 
         //toolbar
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        toolbar.setTitleTextAppearance(this,R.style.Toolbar_TitleText);
         setSupportActionBar(toolbar);
         mDrawerLayout = (DrawerLayout) findViewById(R.id.draw);
+        mCardView = (CardView)findViewById(R.id.marker_info);
+        exit_info = (Button)findViewById(R.id.exit_info);
+        uid_can = (TextView) findViewById(R.id.uid_can);
+        time = (TextView) findViewById(R.id.time);
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav);
         View headerView = navigationView.getHeaderView(0);
         phonenum = (TextView) headerView.findViewById(R.id.PhoneNum);
@@ -100,18 +136,39 @@ public class MainActivity extends AppCompatActivity {
         energy = (TextView) headerView.findViewById(R.id.energy);
         other = (TextView) headerView.findViewById(R.id.other);
 
+        exit_info.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                mCardView.startAnimation(mHiddenAction);
+                mCardView.setVisibility(View.GONE);
+                //重新定位
+                baidumap.clear();
+                Location(locData);
+            }
+        });
+
+        //info展示动画
+        mShowAction = new TranslateAnimation(Animation.RELATIVE_TO_SELF, 0.0f,
+                Animation.RELATIVE_TO_SELF, 0.0f, Animation.RELATIVE_TO_SELF,
+                -2.0f, Animation.RELATIVE_TO_SELF, 0.0f);
+        mShowAction.setDuration(500);
+        mHiddenAction = new TranslateAnimation(Animation.RELATIVE_TO_SELF,
+                0.0f, Animation.RELATIVE_TO_SELF, 0.0f,
+                Animation.RELATIVE_TO_SELF, 0.0f, Animation.RELATIVE_TO_SELF,
+                -2.0f);
+        mHiddenAction.setDuration(500);
+
         //本地更新UI
         updateUI();
 
         ActionBar actionBar = getSupportActionBar();
         if(actionBar!=null){
             actionBar.setDisplayHomeAsUpEnabled(true);
-            actionBar.setHomeAsUpIndicator(R.drawable.ic_menu);
+            actionBar.setHomeAsUpIndicator(R.drawable.menu);
         }
 
-        //检查登录
-        CheckLogin();
-
+        //创建路线规划实例
+        mSearch = RoutePlanSearch.newInstance();
         navigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(@NonNull final MenuItem item) {
@@ -155,15 +212,14 @@ public class MainActivity extends AppCompatActivity {
         });
 
 
-
         mmap = (MapView) findViewById(R.id.map);
 
-        if(NetUtil.checkNet()){
-            //初始化定位
-            initLocation();
-        }else{
-            Toast.makeText(MainActivity.this, R.string.error,Toast.LENGTH_SHORT).show();
-        }
+            if (NetUtil.checkNet()) {
+                //初始化定位
+                initLocation();
+            } else {
+                Toast.makeText(MainActivity.this, R.string.error, Toast.LENGTH_SHORT).show();
+            }
         //自定义定位方式调整按钮
         MyLocationButton();
 
@@ -194,6 +250,151 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+    private void GetMarkerLocation(final double lati_, final double long_) {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                 GetPoint(lati_,long_);
+            }
+        }).start();
+    }
+
+    private void GetPoint(double lati_, double long_) {
+        String can_url = NetWorkData.get_can_api+"location="+long_+","+lati_+"&radius=50000";
+        HttpUtil.get(can_url).enqueue(new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        Toast.makeText(MainActivity.this,"网络错误",Toast.LENGTH_SHORT).show();
+                    }
+                });
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                String res = response.body().string();
+                BaiduPoiInfo poi_info = GsonUtil.parseJsonWithGson(res, BaiduPoiInfo.class);
+                if (poi_info.getSize() != null) {
+                    if (poi_info.getSize().equals("0")) {
+                        Toast.makeText(MainActivity.this, "本地区未开通服务，敬请期待", Toast.LENGTH_SHORT).show();
+                    } else {
+                        AddMakers(poi_info.getSize(),poi_info.getContents());
+                    }
+                }else{
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                          //  Toast.makeText(MainActivity.this, "服务器错误", Toast.LENGTH_SHORT).show();
+                        }
+                    });
+                }
+            }
+        });
+    }
+
+    private void AddMakers(String size, List<Can_Poi> contents) {
+        List<OverlayOptions> moptions = new ArrayList<>();
+
+        //构建Marker图标
+        BitmapDescriptor bitmap = BitmapDescriptorFactory
+                .fromResource(R.drawable.marker);
+        BitmapDescriptor bitmap_full = BitmapDescriptorFactory
+                .fromResource(R.drawable.marker_full);
+        for(int i = 0;i<Integer.parseInt(size);i++){
+            OverlayOptions oo;
+            LatLng point = new LatLng(Double.parseDouble(contents.get(i).getLocation()[1]),Double.parseDouble(contents.get(i).getLocation()[0]));
+            if(contents.get(i).getIs_full() == 0) {
+               oo = new MarkerOptions().position(point).icon(bitmap).title(contents.get(i).getUid());
+            }else{
+                oo = new MarkerOptions().position(point).icon(bitmap_full).title(contents.get(i).getUid());
+            }
+            moptions.add(oo);
+       }
+        baidumap.addOverlays(moptions);
+        baidumap.setOnMarkerClickListener(new BaiduMap.OnMarkerClickListener() {
+            @Override
+            public boolean onMarkerClick(Marker marker) {
+                if(marker.getIcon().getBitmap().sameAs(BitmapFactory.decodeResource(getResources(),R.drawable.marker_full))){
+                    SharedPreferences share = getSharedPreferences("data",MODE_PRIVATE);
+                    if(share.getString("CATEGORY","0").equals("0")){
+                        Toast.makeText(MainActivity.this, "宝宝已经满啦，请选择其他的垃圾桶！", Toast.LENGTH_SHORT).show();
+                    }else{
+                        StartWalkProcess(marker.getPosition());
+                    }
+                }else{
+                    marker_id = marker.getTitle();
+                    //Toast.makeText(MainActivity.this, "路线规划！", Toast.LENGTH_SHORT).show();
+                    //开始路径规划
+                    StartWalkProcess(marker.getPosition());
+                }
+                return false;
+            }
+        });
+    }
+
+    //步行路径
+    private void StartWalkProcess(LatLng position) {
+        Toast.makeText(MainActivity.this,"正在规划路线，请稍后",Toast.LENGTH_SHORT).show();
+        PlanNode stNode = PlanNode.withLocation(new LatLng(lati_, long_));
+        PlanNode enNode = PlanNode.withLocation(position);
+
+        mSearch.setOnGetRoutePlanResultListener(new OnGetRoutePlanResultListener() {
+            @Override
+            public void onGetWalkingRouteResult(WalkingRouteResult result) {
+                //路径规划步行结果
+                if (result == null || result.error != SearchResult.ERRORNO.NO_ERROR) {
+                    Toast.makeText(MainActivity.this, "抱歉，路径规划失败", Toast.LENGTH_SHORT).show();
+                }
+                if (result.getRouteLines().size() == 1) {
+                    baidumap.clear();
+                    // 直接显示
+                    WalkingRouteOverlay overlay = new WalkingRouteOverlay(baidumap);
+                    baidumap.setOnMarkerClickListener(overlay);
+                    overlay.setData(result.getRouteLines().get(0));
+                    overlay.addToMap();
+                    overlay.zoomToSpan();
+                    mCardView.startAnimation(mShowAction);
+                    mCardView.setVisibility(View.VISIBLE);
+                    uid_can.setText(marker_id);
+                    time.setText((result.getRouteLines().get(0).getDuration()/60)+"分钟");
+                } else {
+                    Toast.makeText(MainActivity.this, "抱歉，路径规划失败", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+            }
+
+            @Override
+            public void onGetTransitRouteResult(TransitRouteResult result) {
+                Log.d("SWS",result+"结果");
+            }
+
+            @Override
+            public void onGetMassTransitRouteResult(MassTransitRouteResult result) {
+                Log.d("SWS",result+"结果");
+            }
+
+            @Override
+            public void onGetDrivingRouteResult(DrivingRouteResult result) {
+                Log.d("SWS",result+"结果");
+            }
+
+            @Override
+            public void onGetIndoorRouteResult(IndoorRouteResult result) {
+                Log.d("SWS",result+"结果");
+            }
+
+            @Override
+            public void onGetBikingRouteResult(BikingRouteResult result) {
+                Log.d("SWS",result+"结果");
+            }
+        });
+
+        mSearch.walkingSearch((new WalkingRoutePlanOption())
+                .from(stNode).to(enNode));
+    }
+
     private void updateUI() {
         SharedPreferences share = getSharedPreferences("data",MODE_PRIVATE);
         phonenum.setText(share.getString("PHONE","ERROR"));
@@ -205,78 +406,6 @@ public class MainActivity extends AppCompatActivity {
         score.setText(share.getString("SCORE","0"));
         energy.setText(share.getString("ENERGY","0"));
         other.setText(share.getString("OTHER","0"));
-    }
-
-    private void CheckLogin() {
-       new Thread(new Runnable() {
-           @Override
-           public void run() {
-               SharedPreferences share = getSharedPreferences("data",MODE_PRIVATE);
-               phone_str = share.getString("TOKEN_1","#####");
-               String base_str = share.getString("TOKEN_2","####");
-               pswd_str =  new String
-                       (Base64.decode(base_str.getBytes(), Base64.DEFAULT));
-               FormBody formBody = new FormBody.Builder()
-                       .add(FormData.phone, phone_str)
-                       .add(FormData.pswd, pswd_str)
-                       .build();
-               //登陆的网络请求
-               startHttpConn(formBody);
-           }
-       }).start();
-    }
-
-    private void startHttpConn(FormBody formBody) {
-        HttpUtil.post(formBody, NetWorkData.login_api).enqueue(new Callback() {
-            @Override
-            public void onFailure(Call call, IOException e) {
-              //  Login_Error();
-            }
-
-            @Override
-            public void onResponse(Call call, Response response) throws IOException {
-                final String en_str = response.body().string();
-                //TODO：成功就啥都不提示
-              //  Login_Error();
-                if(en_str!=null) {
-                    UserInfo userinfo = GsonUtil.parseJsonWithGson(en_str, UserInfo.class);
-                    saveInfo(userinfo);
-                    EventBus.getDefault().post(new UserBusBean(1,userinfo));
-                }else{
-                    Login_Error();
-                }
-            }
-        });
-    }
-
-    private void Login_Error() {
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
-                builder.setTitle("提示");
-                builder.setMessage("登录信息失效，请重新登录");
-                builder.setCancelable(false);
-                builder.setPositiveButton("确定", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        File file = new File("/data/data/com.greenenergy.greenenergy/shared_prefs/data.xml");
-                        deletefile(file);
-                        startActivity(new Intent(MainActivity.this,RegisterActivity.class));
-                        finish();
-                    }
-                });
-                builder.show();
-            }
-        });
-    }
-
-    private void deletefile(File file) {
-        if(file.exists()){
-            if(file.isFile()){
-                file.delete();   //delete the  SharedPreferences
-            }
-        }
     }
 
     private void scan() {
@@ -295,6 +424,12 @@ public class MainActivity extends AppCompatActivity {
         location_icon.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+               if(mCardView.getVisibility() == View.VISIBLE) {
+                   mCardView.startAnimation(mHiddenAction);
+                   mCardView.setVisibility(View.GONE);
+               }
+                //重新定位
+                baidumap.clear();
                 Location(locData);
             }
         });
@@ -329,20 +464,7 @@ public class MainActivity extends AppCompatActivity {
 //        }
     }
 
-    private void saveInfo(UserInfo userinfo) {
-        // encodeToString will return string value
-        String enToStr = Base64.encodeToString(pswd_str.getBytes(), Base64.DEFAULT);
-        SharedPreferences.Editor editor = getSharedPreferences("data",MODE_PRIVATE).edit();
-        editor.putBoolean("isfirstlogin",false);
-        editor.putString("TOKEN_1",phone_str);
-        editor.putString("TOKEN_2",enToStr);   //储存账号密码
-        editor.putString("PHONE",userinfo.getPhoneNum());
-        editor.putString("CATEGORY",userinfo.getCategory());
-        editor.putString("SCORE",userinfo.getScore().getScore());
-        editor.putString("ENERGY",userinfo.getScore().getEnergy());
-        editor.putString("OTHER",userinfo.getScore().getOther());
-        editor.apply();
-    }
+
 
     private void MyZoomControl() {
         zoomInBtn = (Button) findViewById(R.id.zoomin);
@@ -386,6 +508,7 @@ public class MainActivity extends AppCompatActivity {
         lco.setScanSpan(1000);
         //初始化定位客户端
         mlc = new LocationClient(getApplicationContext());
+        lco.setCoorType("bd09ll"); // 设置坐标类型
         //给定位客户端注册自定义监听器
         mlc.registerLocationListener(new LocationListener());
         //设置一些配置选项
@@ -404,7 +527,6 @@ public class MainActivity extends AppCompatActivity {
             if (bdLocation == null || mmap == null) {
                 return;
             }
-            baidumap.clear();
             //调用设置方法
             moveTo(bdLocation);
         }
@@ -424,11 +546,6 @@ public class MainActivity extends AppCompatActivity {
                 .direction(bdLocation.getDirection()).latitude(lati_)
                 .longitude(long_).build();
         //配置（定位模式，允许显示方向，图标）
-        MyLocationConfiguration configuration
-                =new MyLocationConfiguration(LocationMode.NORMAL,true,null);
-        //设置定位图层配置信息，只有先允许定位图层后设置定位图层配置信息才会生效，参见 setMyLocationEnabled(boolean)
-        baidumap.setMyLocationConfiguration(configuration);
-
 
 
         if(isFirstLocate){
@@ -438,10 +555,13 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void Location(MyLocationData locData) {
+
         baidumap.setMyLocationData(locData);
         isFirstLocate = false;
         baidumap.setMyLocationConfiguration(new MyLocationConfiguration(
                 LocationMode.NORMAL, true, null));
+
+        //移动地图到指定位置
         LatLng ll = new LatLng(lati_,long_);
         update = MapStatusUpdateFactory.newLatLng(ll);
         baidumap.animateMapStatus(update);
@@ -453,6 +573,8 @@ public class MainActivity extends AppCompatActivity {
                     Thread.sleep(300);
                     update = MapStatusUpdateFactory.zoomTo(18f);
                     baidumap.animateMapStatus(update);
+                    //请求垃圾桶位置
+                    GetMarkerLocation(lati_,long_);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
@@ -480,10 +602,18 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @Override
+    protected void onRestart() {
+        super.onRestart();
+    }
+
+    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()){
             case android.R.id.home:
                 mDrawerLayout.openDrawer(GravityCompat.START);
+                break;
+            case R.id.action_settings:
+                startActivity(new Intent(MainActivity.this,MessageActivity.class));
                 break;
         }
         return true;
@@ -503,10 +633,10 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @Subscribe
-    public void onEventMainThread(final UserBusBean event) {
-      if(event.getBus_id() == 1){
-          updateUI();
-      }
+    public void onEventMainThread(final SimpleBusBean event) {
+        if(event.getBus_id() == 2){
+            updateUI();
+        }
     }
 
 }

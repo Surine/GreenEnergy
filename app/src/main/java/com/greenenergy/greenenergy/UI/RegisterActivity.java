@@ -5,7 +5,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.support.v7.app.AlertDialog;
-import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -13,6 +12,7 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import com.greenenergy.greenenergy.Bean.UserInfo;
+import com.greenenergy.greenenergy.Init.BaseActivity;
 import com.greenenergy.greenenergy.Init.StatusUI;
 import com.greenenergy.greenenergy.MyData.FormData;
 import com.greenenergy.greenenergy.MyData.NetWorkData;
@@ -31,7 +31,7 @@ import okhttp3.Callback;
 import okhttp3.FormBody;
 import okhttp3.Response;
 
-public class RegisterActivity extends AppCompatActivity {
+public class RegisterActivity extends BaseActivity {
     private Button login;
     private Button register;
     private Button sendcode;
@@ -71,15 +71,14 @@ public class RegisterActivity extends AppCompatActivity {
         });
         register = (Button) findViewById(R.id.login);
         register.setClickable(false);
-        phoneNUmber = phone.getText().toString();
-        pswd_String = pswd.getText().toString();
-        code_string = code.getText().toString();
         sendcode = (Button) findViewById(R.id.button2);
         //发送验证码
         sendcode.setOnClickListener(new View.OnClickListener() {
 
             @Override
             public void onClick(final View view) {
+                phoneNUmber = phone.getText().toString();
+                pswd_String = pswd.getText().toString();
                 if (phoneNUmber.equals("")) {
                     Toast.makeText(RegisterActivity.this, "请输入手机号码", Toast.LENGTH_SHORT).show();
                 } else {
@@ -117,15 +116,16 @@ public class RegisterActivity extends AppCompatActivity {
         register.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Register();
+             //   Register();
                 //TODO 开发阶段 ，暂时不验证
-                //checkMsg(phoneNUmber);
+                checkMsg(phoneNUmber);
             }
         });
     }
 
     //这里是验证的逻辑
     private void checkMsg(String phoneNUmber) {
+        code_string = code.getText().toString();
         if (code_string.equals("")) {
             Toast.makeText(RegisterActivity.this, "验证码未填写", Toast.LENGTH_SHORT).show();
         } else {

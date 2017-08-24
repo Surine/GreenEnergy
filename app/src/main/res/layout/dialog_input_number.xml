@@ -14,6 +14,7 @@
         android:layout_width="match_parent"
         android:layout_height="45dp"
         android:id="@+id/enter_number"
+        android:maxLength="10"
         android:layout_alignBottom="@+id/imageView4"
         android:layout_centerHorizontal="true"
         android:layout_marginBottom="12dp"

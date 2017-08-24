@@ -1,16 +1,16 @@
 package com.greenenergy.greenenergy.UI;
 
 import android.content.SharedPreferences;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import com.greenenergy.greenenergy.Init.BaseActivity;
 import com.greenenergy.greenenergy.R;
 
-public class DevelopActivity extends AppCompatActivity {
+public class DevelopActivity extends BaseActivity {
      private EditText ip;
     private Button ok;
     @Override
