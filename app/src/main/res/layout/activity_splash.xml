@@ -6,14 +6,14 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:layout_centerHorizontal="true"
+    android:background="@drawable/back2"
     tools:context="com.greenenergy.greenenergy.UI.SplashActivity">
 <RelativeLayout
     android:layout_width="match_parent"
     android:layout_height="70dp"
-    android:layout_alignParentBottom="true"
-    android:layout_marginBottom="15dp"
     android:gravity="center"
-    >
+    android:layout_alignParentBottom="true"
+    android:layout_alignParentStart="true">
     <ImageView
         android:id="@+id/imageView"
         android:layout_width="60dp"
@@ -29,10 +29,10 @@
         android:layout_height="wrap_content"
         android:layout_alignBottom="@+id/imageView"
         android:layout_marginStart="18dp"
-        android:textSize="25sp"
-        android:textColor="#000"
         android:layout_toEndOf="@+id/imageView"
-        android:text="@string/app_name"/>
+        android:text="@string/app_name"
+        android:textColor="#000"
+        android:textSize="25sp"/>
 </RelativeLayout>
 
 </RelativeLayout>

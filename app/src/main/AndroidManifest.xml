@@ -4,7 +4,6 @@
 
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
-
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
     <uses-permission android:name="android.permission.CHANGE_WIFI_STATE"/>
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE"/>
@@ -23,6 +22,7 @@
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
+        android:screenOrientation="portrait"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <meta-data
@@ -41,6 +41,7 @@
             android:name="com.baidu.location.f"
             android:enabled="true"
             android:process=":remote"/>
+
         <activity android:name=".Init.BaseActivity">
         </activity>
         <activity android:name=".UI.MainActivity">
@@ -71,6 +72,13 @@
         <activity android:name=".UI.CheckActivity">
         </activity>
         <activity android:name=".UI.MessageActivity">
+        </activity>
+        <activity android:name=".UI.MessageInfoActivity">
+        </activity>
+        <activity android:name=".UI.Market_detail_Activity">
+        </activity>
+        <activity android:name=".UI.CartActivity"
+            >
         </activity>
     </application>
 

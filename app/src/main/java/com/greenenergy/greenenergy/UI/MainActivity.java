@@ -241,7 +241,7 @@ public class MainActivity extends BaseActivity{
                 builder.setItems(items, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
-                        Toast.makeText(MainActivity.this,"你点击的是条目"+i,Toast.LENGTH_SHORT).show();
+                        Toast.makeText(MainActivity.this,"反馈成功",Toast.LENGTH_SHORT).show();
                     }
                 });
                 builder.create();
@@ -441,7 +441,7 @@ public class MainActivity extends BaseActivity{
         mmap = (MapView) findViewById(R.id.map);
         mmap.setVisibility(View.VISIBLE);
         baidumap = mmap.getMap();
-
+     //   baidumap.setTrafficEnabled(true);
         //修改默认view
         changeDefaultBaiduMapView(mmap);
 
@@ -636,6 +636,8 @@ public class MainActivity extends BaseActivity{
     public void onEventMainThread(final SimpleBusBean event) {
         if(event.getBus_id() == 2){
             updateUI();
+        }else if(event.getBus_id() == 3){
+            finish();
         }
     }
 

@@ -11,6 +11,7 @@ import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.greenenergy.greenenergy.Bean.SimpleBusBean;
 import com.greenenergy.greenenergy.Bean.VersionInfo;
 import com.greenenergy.greenenergy.MyData.NetWorkData;
 import com.greenenergy.greenenergy.R;
@@ -24,6 +25,7 @@ import com.greenenergy.greenenergy.Utils.HttpUtil;
 import java.io.File;
 import java.io.IOException;
 
+import de.greenrobot.event.EventBus;
 import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.Response;
@@ -204,6 +206,7 @@ public class SettingFragment extends PreferenceFragment implements Preference.On
                 File file = new File("/data/data/com.greenenergy.greenenergy/shared_prefs/data.xml");
                 deletefile(file);
                 startActivity(new Intent(getActivity(), RegisterActivity.class));
+                EventBus.getDefault().post(new SimpleBusBean(3,"MESSAGE"));
                 getActivity().finish();
             }
         });

@@ -4,6 +4,8 @@ import android.app.Application;
 
 import com.baidu.mapapi.SDKInitializer;
 
+import org.litepal.LitePalApplication;
+
 /**
  * Created by surine on 2017/8/17.
  */
@@ -14,5 +16,7 @@ public class MyApplication extends Application {
         super.onCreate();
         // 在使用 SDK 各组间之前初始化 context 信息，传入 ApplicationContext
         SDKInitializer.initialize(this);
+        //init the litepal
+        LitePalApplication.initialize(getApplicationContext());
     }
 }

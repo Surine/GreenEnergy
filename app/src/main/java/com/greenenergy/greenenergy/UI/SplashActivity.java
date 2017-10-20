@@ -61,7 +61,7 @@ public class SplashActivity extends BaseActivity {
             @Override
             public void run() {
                 try {
-                    Thread.sleep(200);
+                    Thread.sleep(1000);
                     SharedPreferences pre = getSharedPreferences("data", MODE_PRIVATE);
                     if (pre.getBoolean("isfirstlogin", true)) {
                         startActivity(new Intent(SplashActivity.this,RegisterActivity.class));

@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.greenenergy.greenenergy.UI.CartActivity">
+
+    <android.support.v7.widget.Toolbar
+        android:layout_width="match_parent"
+        android:layout_height="80dp"
+        android:id="@+id/toolbar"
+        android:paddingTop="15dp"
+        android:fitsSystemWindows="true"
+        android:background="?attr/colorPrimary"
+        android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
+        app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
+        />
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/cart_rec"
+        android:layout_below="@id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_above="@+id/relativeLayout">
+
+    </android.support.v7.widget.RecyclerView>
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:background="#fff"
+        android:elevation="2dp"
+        android:gravity="center_vertical"
+        android:layout_alignParentBottom="true"
+        android:id="@+id/relativeLayout">
+        <CheckBox
+            android:text="全选"
+            android:visibility="gone"
+            android:layout_marginStart="20dp"
+            android:layout_height="match_parent"
+            android:layout_width="wrap_content"
+            android:id="@+id/checkBox">
+
+        </CheckBox>
+
+        <Button
+            style="@style/Widget.AppCompat.Button.Borderless.Colored"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_toStartOf="@+id/sum"
+            android:gravity="center"
+            android:id="@+id/add"
+            android:padding="10dp"
+            android:text="添加收货地址"/>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:text="合计：0"
+            android:padding="10dp"
+            android:id="@+id/sum"
+            android:gravity="center"
+            android:layout_toStartOf="@+id/pay"/>
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:background="@color/colorAccent"
+            android:text="结算"
+            android:textColor="#fff"
+            android:layout_alignParentEnd="true"
+            android:id="@+id/pay"/>
+</RelativeLayout>
+</RelativeLayout>

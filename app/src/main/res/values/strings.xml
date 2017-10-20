@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">GreenEnergy</string>
+    <string name="app_name">绿执</string>
     <string name="error">无法使用基站或者GPS定位，请检查是否开启GPS或是否处于飞行模式</string>
 
     <!--zxing-->

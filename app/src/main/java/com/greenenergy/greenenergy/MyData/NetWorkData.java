@@ -7,6 +7,7 @@ package com.greenenergy.greenenergy.MyData;
 public class NetWorkData {
     //服务器IP端口
     public static String IP_port = "http://surine.cn:6060";
+    public static String IP_port_80 = "http://surine.cn:80";
     //使用协议
     public static String lis = "http://surine.cn/GreenEnergyFiles/user_lis.html";
     //押金说明
@@ -30,7 +31,11 @@ public class NetWorkData {
     //更新接口
     public static String update_api = "http://surine.cn/GreenEnergyFiles/version_manager.php";
    //获取垃圾桶
-    public static String get_can_api = "http://surine.cn:6060/gettrashcan?";
+    public static String get_can_api = IP_port+"/gettrashcan?";
     //扫码投放
-    public static String add_score_api = "http://surine.cn:6060/addscore";
+    public static String add_score_api = IP_port+"/addscore";
+    //获取全部公告
+    public static String getallnotice = IP_port+"/getallnotice";
+    //获取最后一条公告
+    public static String getlastnotice = IP_port+"/getlastnotice";
 }

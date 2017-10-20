@@ -2,7 +2,7 @@ package com.greenenergy.greenenergy.Bean;
 
 /**
  * Created by surine on 2017/8/23.
- * id = 2
+ * id = 3
  */
 
 public class SimpleBusBean {
